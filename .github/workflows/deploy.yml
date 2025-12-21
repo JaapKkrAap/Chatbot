@@ -3,8 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
-      - master
+      - claude/character-card-editor-O8pzS
   workflow_dispatch:
 
 permissions:
