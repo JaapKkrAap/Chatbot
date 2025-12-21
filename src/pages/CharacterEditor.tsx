@@ -15,6 +15,7 @@ import AdvancedTab from '@/components/editor/AdvancedTab'
 import LorebookTab from '@/components/editor/LorebookTab'
 import BehaviorTab from '@/components/editor/BehaviorTab'
 import TestingTab from '@/components/editor/TestingTab'
+import AIAssistantPanel from '@/components/editor/AIAssistantPanel'
 
 export default function CharacterEditor() {
   const { id } = useParams()
@@ -170,6 +171,7 @@ export default function CharacterEditor() {
             <TabsTrigger value="advanced">Advanced</TabsTrigger>
             <TabsTrigger value="lorebook">Lorebook</TabsTrigger>
             <TabsTrigger value="behavior">Behavior</TabsTrigger>
+            <TabsTrigger value="ai">AI Assistant</TabsTrigger>
             <TabsTrigger value="testing">Testing</TabsTrigger>
           </TabsList>
 
@@ -191,6 +193,40 @@ export default function CharacterEditor() {
 
           <TabsContent value="behavior" className="mt-0">
             <BehaviorTab form={form} />
+          </TabsContent>
+
+          <TabsContent value="ai" className="mt-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AIAssistantPanel
+                onInsert={(text) => {
+                  // Insert into currently focused field or description by default
+                  form.setValue('description', (form.getValues('description') || '') + '\n' + text)
+                }}
+                context={{
+                  name: form.watch('name'),
+                  description: form.watch('description'),
+                  personality: form.watch('personality'),
+                  scenario: form.watch('scenario'),
+                }}
+              />
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  The AI assistant provides helpful suggestions based on your character context.
+                  Select a helper type, enter your prompt, and click Generate.
+                </p>
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">Current Character Context:</h4>
+                  <dl className="space-y-1 text-sm">
+                    <dt className="font-medium">Name:</dt>
+                    <dd className="text-muted-foreground">{form.watch('name') || 'Not set'}</dd>
+                    <dt className="font-medium mt-2">Description Length:</dt>
+                    <dd className="text-muted-foreground">{form.watch('description')?.length || 0} characters</dd>
+                    <dt className="font-medium mt-2">Personality Length:</dt>
+                    <dd className="text-muted-foreground">{form.watch('personality')?.length || 0} characters</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="testing" className="mt-0">
