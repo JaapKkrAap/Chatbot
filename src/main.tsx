@@ -17,7 +17,7 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter basename="/Chatbot">
+    <BrowserRouter basename="/">
       <QueryClientProvider client={queryClient}>
         <SettingsProvider>
           <App />
