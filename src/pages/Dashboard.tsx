@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
 import { localStorageService } from '@/services/localStorage'
 import { Character } from '@/types/character-card'
 import { Button } from '@/components/ui/button'
@@ -8,12 +7,11 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus, Search, Download, Upload, LogOut, Copy, Trash2 } from 'lucide-react'
+import { Plus, Search, Download, Upload, Copy, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { signOut, user } = useAuth()
   const [characters, setCharacters] = useState<Character[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [importDialogOpen, setImportDialogOpen] = useState(false)
@@ -46,7 +44,7 @@ export default function Dashboard() {
       post_history_instructions: '',
       alternate_greetings: [],
       tags: [],
-      creator: user?.email || '',
+      creator: '',
       character_version: '1.0',
       extensions: {},
       created_at: new Date().toISOString(),
@@ -139,9 +137,6 @@ export default function Dashboard() {
             <Button onClick={handleNewCharacter}>
               <Plus className="h-4 w-4 mr-2" />
               New Character
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => signOut()}>
-              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
