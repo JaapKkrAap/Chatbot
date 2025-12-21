@@ -1,11 +1,13 @@
 // Character Doctor - Diagnostic System
 import { Character } from '@/types/character-card';
+import { aiAssistant } from './aiAssistant';
 
 export interface DiagnosticIssue {
   field: string;
   severity: 'error' | 'warning' | 'info';
   message: string;
   suggestion?: string;
+  fixable?: boolean; // Can be auto-fixed with AI
 }
 
 export interface HealthReport {
@@ -61,6 +63,7 @@ class CharacterDoctorService {
         severity: 'warning',
         message: 'Smart quotes detected (may cause issues)',
         suggestion: 'Replace smart quotes with straight quotes (\' and ")',
+        fixable: true,
       });
     }
 
@@ -89,6 +92,7 @@ class CharacterDoctorService {
         severity: 'info',
         message: `Repetitive words detected: ${topWords}`,
         suggestion: 'Consider using synonyms to add variety',
+        fixable: true,
       });
     }
 
@@ -121,6 +125,7 @@ class CharacterDoctorService {
           severity: 'warning',
           message: `${field} is empty`,
           suggestion: reason,
+          fixable: true,
         });
       }
     });
@@ -262,6 +267,129 @@ class CharacterDoctorService {
     }
 
     return issues;
+  }
+
+  // AI-powered auto-fix methods
+  async autoFixIssue(
+    issue: DiagnosticIssue,
+    content: string,
+    _character: Character,
+    aiSettings: any
+  ): Promise<string> {
+    if (!issue.fixable) {
+      return content;
+    }
+
+    // Fix smart quotes (no AI needed)
+    if (issue.message.includes('Smart quotes')) {
+      return content.replace(/[""]/g, '"').replace(/['']/g, "'");
+    }
+
+    // Fix with AI for other issues
+    return await aiAssistant.fixCharacterIssue(issue.message, content, aiSettings);
+  }
+
+  async autoFixAllIssues(
+    character: Character,
+    aiSettings: any
+  ): Promise<{ fixed: Character; fixCount: number }> {
+    const report = this.diagnose(character);
+    const fixableIssues = report.issues.filter((i) => i.fixable);
+    let fixCount = 0;
+    const fixed = { ...character };
+
+    for (const issue of fixableIssues) {
+      const field = issue.field as keyof Character;
+
+      // Skip if not a string field
+      if (typeof fixed[field] !== 'string') continue;
+
+      try {
+        const originalContent = String(fixed[field]);
+        const fixedContent = await this.autoFixIssue(issue, originalContent, character, aiSettings);
+
+        if (fixedContent !== originalContent) {
+          (fixed as any)[field] = fixedContent;
+          fixCount++;
+        }
+      } catch (error) {
+        console.error(`Failed to fix issue in ${field}:`, error);
+      }
+    }
+
+    return { fixed, fixCount };
+  }
+
+  async generateMissingField(
+    field: string,
+    character: Character,
+    aiSettings: any
+  ): Promise<string> {
+
+    switch (field) {
+      case 'description':
+        return await aiAssistant.makeRequest(
+          {
+            type: 'expand_description',
+            context: { brief: `A character named ${character.name}` },
+          },
+          aiSettings
+        ).then((r) => (r.success ? r.data : ''));
+
+      case 'personality':
+        return await aiAssistant.makeRequest(
+          {
+            type: 'extract_traits',
+            context: { content: character.description || `Character: ${character.name}` },
+          },
+          aiSettings
+        ).then((r) => {
+          if (r.success) {
+            try {
+              const result = JSON.parse(r.data);
+              return result.traits.join(', ');
+            } catch {
+              return '';
+            }
+          }
+          return '';
+        });
+
+      case 'scenario':
+        return await aiAssistant.makeRequest(
+          {
+            type: 'scenario_variations',
+            context: {
+              name: character.name,
+              scenario: `A scene involving ${character.name}`,
+              count: 1,
+            },
+          },
+          aiSettings
+        ).then((r) => {
+          if (r.success) {
+            try {
+              const scenarios = JSON.parse(r.data);
+              return scenarios[0] || '';
+            } catch {
+              return '';
+            }
+          }
+          return '';
+        });
+
+      case 'first_mes':
+        return await aiAssistant.generateFirstMessage(
+          character.name,
+          character.description,
+          character.scenario,
+          'casual',
+          aiSettings
+        );
+
+      default:
+        return '';
+    }
   }
 }
 

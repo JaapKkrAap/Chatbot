@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus, Search, Download, Upload, Copy, Trash2 } from 'lucide-react'
+import { Plus, Search, Download, Upload, Copy, Trash2, Settings } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function Dashboard() {
@@ -111,6 +111,9 @@ export default function Dashboard() {
             <p className="text-sm text-muted-foreground">{characters.length} characters</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={() => navigate('/settings')} title="Settings">
+              <Settings className="h-4 w-4" />
+            </Button>
             <Button variant="outline" size="icon" onClick={handleExportLibrary}>
               <Download className="h-4 w-4" />
             </Button>
