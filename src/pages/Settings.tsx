@@ -16,6 +16,7 @@ export default function Settings() {
   const { settings, updateSettings } = useSettings();
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showAnthropicKey, setShowAnthropicKey] = useState(false);
+  const [showOpenRouterKey, setShowOpenRouterKey] = useState(false);
 
   const handleSave = () => {
     toast.success('Settings saved successfully');
@@ -53,7 +54,7 @@ export default function Settings() {
               <Label>Preferred Provider</Label>
               <Select
                 value={settings.preferredProvider}
-                onValueChange={(value: 'openai' | 'anthropic') =>
+                onValueChange={(value: 'openai' | 'anthropic' | 'openrouter') =>
                   updateSettings({ preferredProvider: value })
                 }
               >
@@ -63,6 +64,7 @@ export default function Settings() {
                 <SelectContent>
                   <SelectItem value="openai">OpenAI (GPT-4, GPT-3.5)</SelectItem>
                   <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
+                  <SelectItem value="openrouter">OpenRouter (All Models)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -131,6 +133,38 @@ export default function Settings() {
               </p>
             </div>
 
+            {/* OpenRouter API Key */}
+            <div className="space-y-2">
+              <Label>OpenRouter API Key</Label>
+              <div className="flex gap-2">
+                <Input
+                  type={showOpenRouterKey ? 'text' : 'password'}
+                  value={settings.openrouterApiKey}
+                  onChange={(e) => updateSettings({ openrouterApiKey: e.target.value })}
+                  placeholder="sk-or-..."
+                  className="font-mono text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowOpenRouterKey(!showOpenRouterKey)}
+                >
+                  {showOpenRouterKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Get your API key from{' '}
+                <a
+                  href="https://openrouter.ai/keys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  openrouter.ai/keys
+                </a>
+              </p>
+            </div>
+
             {/* Model Selection */}
             <div className="space-y-2">
               <Label>Preferred Model</Label>
@@ -148,10 +182,21 @@ export default function Settings() {
                       <SelectItem value="gpt-4o-mini">GPT-4o Mini (Faster, cheaper)</SelectItem>
                       <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Cheapest)</SelectItem>
                     </>
-                  ) : (
+                  ) : settings.preferredProvider === 'anthropic' ? (
                     <>
                       <SelectItem value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Best)</SelectItem>
                       <SelectItem value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Fast)</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</SelectItem>
+                      <SelectItem value="anthropic/claude-3-opus">Claude 3 Opus</SelectItem>
+                      <SelectItem value="openai/gpt-4o">GPT-4o</SelectItem>
+                      <SelectItem value="openai/gpt-4o-mini">GPT-4o Mini</SelectItem>
+                      <SelectItem value="google/gemini-pro-1.5">Gemini Pro 1.5</SelectItem>
+                      <SelectItem value="meta-llama/llama-3.1-70b-instruct">Llama 3.1 70B</SelectItem>
+                      <SelectItem value="mistralai/mistral-large">Mistral Large</SelectItem>
+                      <SelectItem value="qwen/qwen-2.5-72b-instruct">Qwen 2.5 72B</SelectItem>
                     </>
                   )}
                 </SelectContent>

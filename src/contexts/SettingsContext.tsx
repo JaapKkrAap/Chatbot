@@ -3,7 +3,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 export interface AISettings {
   openaiApiKey: string;
   anthropicApiKey: string;
-  preferredProvider: 'openai' | 'anthropic';
+  openrouterApiKey: string;
+  preferredProvider: 'openai' | 'anthropic' | 'openrouter';
   preferredModel: string;
   temperature: number;
   maxTokens: number;
@@ -19,6 +20,7 @@ interface SettingsContextType {
 const defaultSettings: AISettings = {
   openaiApiKey: '',
   anthropicApiKey: '',
+  openrouterApiKey: '',
   preferredProvider: 'openai',
   preferredModel: 'gpt-4o',
   temperature: 0.7,
@@ -45,7 +47,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const hasApiKey = Boolean(
     settings.preferredProvider === 'openai'
       ? settings.openaiApiKey
-      : settings.anthropicApiKey
+      : settings.preferredProvider === 'anthropic'
+      ? settings.anthropicApiKey
+      : settings.openrouterApiKey
   );
 
   return (

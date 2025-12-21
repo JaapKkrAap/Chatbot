@@ -181,10 +181,63 @@ class AIAssistantService {
     }
   }
 
+  private async makeOpenRouterRequest(
+    apiKey: string,
+    model: string,
+    messages: Array<{ role: string; content: string }>,
+    temperature: number,
+    maxTokens: number
+  ): Promise<AIResponse> {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': window.location.href,
+          'X-Title': 'Character Card Editor',
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature,
+          max_tokens: maxTokens,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return {
+          success: false,
+          error: error.error?.message || 'OpenRouter API request failed',
+        };
+      }
+
+      const data = await response.json();
+      const usage = {
+        promptTokens: data.usage?.prompt_tokens || 0,
+        completionTokens: data.usage?.completion_tokens || 0,
+        totalTokens: data.usage?.total_tokens || 0,
+        estimatedCost: 0, // OpenRouter provides credits in response, could be added here
+      };
+
+      return {
+        success: true,
+        data: data.choices[0].message.content,
+        usage,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: String(error),
+      };
+    }
+  }
+
   async makeRequest(
     request: AIRequest,
     settings: {
-      provider: 'openai' | 'anthropic';
+      provider: 'openai' | 'anthropic' | 'openrouter';
       apiKey: string;
       model: string;
       temperature: number;
@@ -203,8 +256,16 @@ class AIAssistantService {
         settings.temperature,
         settings.maxTokens
       );
-    } else {
+    } else if (settings.provider === 'anthropic') {
       response = await this.makeAnthropicRequest(
+        settings.apiKey,
+        settings.model,
+        messages,
+        settings.temperature,
+        settings.maxTokens
+      );
+    } else {
+      response = await this.makeOpenRouterRequest(
         settings.apiKey,
         settings.model,
         messages,

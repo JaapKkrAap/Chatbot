@@ -45,6 +45,12 @@ export default function AIAssistantPanel({ onInsert, context = {} }: AIAssistant
     setHistory(aiAssistant.getHistory())
   }, [])
 
+  const getApiKey = () => {
+    if (settings.preferredProvider === 'openai') return settings.openaiApiKey;
+    if (settings.preferredProvider === 'anthropic') return settings.anthropicApiKey;
+    return settings.openrouterApiKey;
+  };
+
   const handleCopy = () => {
     if (results[selectedResult]) {
       navigator.clipboard.writeText(results[selectedResult])
@@ -69,7 +75,7 @@ export default function AIAssistantPanel({ onInsert, context = {} }: AIAssistant
     try {
       const aiSettings = {
         provider: settings.preferredProvider,
-        apiKey: settings.preferredProvider === 'openai' ? settings.openaiApiKey : settings.anthropicApiKey,
+        apiKey: getApiKey(),
         model: settings.preferredModel,
         temperature: settings.temperature,
         maxTokens: settings.maxTokens,
