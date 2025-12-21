@@ -703,7 +703,7 @@ EXAMPLE DIALOGUE: ${profile.example_dialogue} (${profile.counts.example_dialogue
                         try {
                           const aiSettings = {
                             provider: settings.preferredProvider,
-                            apiKey: settings.preferredProvider === 'openai' ? settings.openaiApiKey : settings.anthropicApiKey,
+                            apiKey: getApiKey(),
                             model: settings.preferredModel,
                             temperature: settings.temperature,
                             maxTokens: 4000,
@@ -801,7 +801,7 @@ EXAMPLE DIALOGUE: ${profile.example_dialogue} (${profile.counts.example_dialogue
                         try {
                           const aiSettings = {
                             provider: settings.preferredProvider,
-                            apiKey: settings.preferredProvider === 'openai' ? settings.openaiApiKey : settings.anthropicApiKey,
+                            apiKey: getApiKey(),
                             model: settings.preferredModel,
                             temperature: settings.temperature,
                             maxTokens: settings.maxTokens,
@@ -859,7 +859,7 @@ EXAMPLE DIALOGUE: ${profile.example_dialogue} (${profile.counts.example_dialogue
                         try {
                           const aiSettings = {
                             provider: settings.preferredProvider,
-                            apiKey: settings.preferredProvider === 'openai' ? settings.openaiApiKey : settings.anthropicApiKey,
+                            apiKey: getApiKey(),
                             model: settings.preferredModel,
                             temperature: settings.temperature,
                             maxTokens: settings.maxTokens,
