@@ -15,7 +15,8 @@ export type AIHelperType =
   | 'generate_examples'
   | 'scenario_variations'
   | 'cross_reference'
-  | 'fix_character_issue';
+  | 'fix_character_issue'
+  | 'testing_sandbox_chat';
 
 export interface AIRequest {
   type: AIHelperType;
@@ -293,6 +294,9 @@ class AIAssistantService {
     const { type, context } = request;
 
     switch (type) {
+      case 'testing_sandbox_chat':
+        return context.messages;
+
       case 'expand_description':
         return [
           {
